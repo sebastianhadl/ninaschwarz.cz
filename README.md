@@ -53,7 +53,7 @@ Squarespace to GitHub Pages:
    | `A` | `@` | `185.199.109.153` |
    | `A` | `@` | `185.199.110.153` |
    | `A` | `@` | `185.199.111.153` |
-   | `CNAME` | `www` | `shadlproducer.github.io` |
+   | `CNAME` | `www` | `sebastianhadl.github.io` |
 
 3. Wait for GitHub to show the domain as verified (minutes to a few hours), then tick
    **Enforce HTTPS**.
