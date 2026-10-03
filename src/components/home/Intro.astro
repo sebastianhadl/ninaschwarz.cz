@@ -2,8 +2,9 @@
 // "read my résumé. watch my tapes. see my photos." — the three things
 // a casting director comes for, one click from the top of the page.
 import Icon from '../Icon.astro';
+import { gallery, tapes } from '../../data/home';
 import { site } from '../../data/site';
-import { typo, useTranslations, withBase, type Lang } from '../../i18n';
+import { plural, typo, useTranslations, withBase, type Lang } from '../../i18n';
 
 interface Props {
   lang: Lang;
@@ -12,10 +13,10 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 
-const targets: Record<string, { href: string; external: boolean }> = {
-  resume: { href: withBase(site.resume), external: true },
-  tapes: { href: '#tapes', external: false },
-  photos: { href: '#photos', external: false },
+const targets: Record<string, { href: string; external: boolean; hint: string }> = {
+  resume: { href: withBase(site.resume), external: true, hint: 'PDF' },
+  tapes: { href: '#tapes', external: false, hint: plural(lang, tapes.length, t.intro.counts.videos) },
+  photos: { href: '#photos', external: false, hint: plural(lang, gallery.length, t.intro.counts.photos) },
 };
 ---
 
@@ -39,7 +40,7 @@ const targets: Record<string, { href: string; external: boolean }> = {
                 <span class="intro__text">
                   <Fragment set:html={typo(lang, item.lead)} /> <em>{item.word}</em>.
                 </span>
-                <span class="intro__hint">{item.hint}</span>
+                <span class="intro__hint">{target.hint}</span>
                 <span class="intro__arrow">
                   <Icon name={target.external ? 'arrow-up-right' : 'arrow-down'} />
                 </span>

@@ -38,6 +38,7 @@ const t = useTranslations(Astro.props.lang).lightbox;
     --gap-bottom: 4.5rem;
 
     width: 100vw;
+    height: 100vh;
     height: 100dvh;
     max-width: none;
     max-height: none;
@@ -80,6 +81,7 @@ const t = useTranslations(Astro.props.lang).lightbox;
     width: auto;
     height: auto;
     max-width: min(100vw - 2 * var(--gap-x), var(--w, 4000) * 1.5px);
+    max-height: min(100vh - var(--gap-top) - var(--gap-bottom), var(--h, 4000) * 1.5px);
     max-height: min(100dvh - var(--gap-top) - var(--gap-bottom), var(--h, 4000) * 1.5px);
     object-fit: contain;
     opacity: 0;

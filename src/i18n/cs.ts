@@ -45,10 +45,15 @@ export const cs: Dictionary = {
   intro: {
     label: 'Začněte tady',
     items: [
-      { lead: 'přečtěte si můj', word: 'životopis', target: 'resume', hint: 'PDF' },
-      { lead: 'podívejte se na má', word: 'videa', target: 'tapes', hint: '2 videa' },
-      { lead: 'prohlédněte si mé', word: 'fotky', target: 'photos', hint: '10 fotek' },
+      { lead: 'přečtěte si můj', word: 'životopis', target: 'resume' },
+      { lead: 'podívejte se na má', word: 'videa', target: 'tapes' },
+      { lead: 'prohlédněte si mé', word: 'fotky', target: 'photos' },
     ],
+    // Tvary pro 1 / 2–4 / 5 a více (viz plural() v i18n/index.ts)
+    counts: {
+      videos: ['video', 'videa', 'videí'],
+      photos: ['fotka', 'fotky', 'fotek'],
+    },
   },
 
   strip: {

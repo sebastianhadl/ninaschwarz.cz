@@ -43,10 +43,15 @@ export const en = {
   intro: {
     label: 'Start here',
     items: [
-      { lead: 'read my', word: 'résumé', target: 'resume', hint: 'PDF' },
-      { lead: 'watch my', word: 'tapes', target: 'tapes', hint: '2 videos' },
-      { lead: 'see my', word: 'photos', target: 'photos', hint: '10 photos' },
+      { lead: 'read my', word: 'résumé', target: 'resume' },
+      { lead: 'watch my', word: 'tapes', target: 'tapes' },
+      { lead: 'see my', word: 'photos', target: 'photos' },
     ],
+    // Word forms for "1 video" / "2 videos" (see plural() in i18n/index.ts)
+    counts: {
+      videos: ['video', 'videos'],
+      photos: ['photo', 'photos'],
+    },
   },
 
   strip: {

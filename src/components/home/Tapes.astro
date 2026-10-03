@@ -1,9 +1,7 @@
 ---
-// Performance tapes. The video files live in public/video/ and their poster
-// frames in src/assets/images/video/. To add a tape, add both and list it below.
+// Performance tapes — the list itself is in src/data/home.ts.
 import Player from '../Player.astro';
-import posterOne from '../../assets/images/video/performance-1.jpg';
-import posterTwo from '../../assets/images/video/performance-2.jpg';
+import { tapes } from '../../data/home';
 import { typo, useTranslations, type Lang } from '../../i18n';
 
 interface Props {
@@ -12,11 +10,6 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-
-const tapes = [
-  { src: '/video/performance-1.mp4', poster: posterOne, duration: '2:42' },
-  { src: '/video/performance-2.mp4', poster: posterTwo, duration: '5:00' },
-];
 ---
 
 <section class="tapes theme-dark section" id="tapes">
@@ -30,12 +23,12 @@ const tapes = [
             <Player
               source={{ type: 'file', src: tape.src }}
               poster={tape.poster}
-              title={t.tapes.items[i].title}
-              alt={t.tapes.items[i].alt}
+              title={t.tapes.items[i]?.title ?? `${t.tapes.play} ${i + 1}`}
+              alt={t.tapes.items[i]?.alt ?? ''}
               playLabel={t.tapes.play}
             />
             <figcaption>
-              <span>{t.tapes.items[i].title}</span>
+              <span>{t.tapes.items[i]?.title ?? `0${i + 1}`}</span>
               <span class="tape__time">{tape.duration}</span>
             </figcaption>
           </figure>

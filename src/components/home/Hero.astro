@@ -64,7 +64,7 @@ const wideSizes = '162vh';
   .hero {
     /* Everything in the hero is sized from its height, so the face and the
        name keep the same relationship on every screen shape. */
-    --hero-h: max(100svh, 34rem);
+    --hero-h: max(100vh, 34rem);
     --photo-ratio: 1.5; /* width ÷ height of the photo in use */
     --photo-h: calc(var(--hero-h) * 1.08);
     /* exactly the backdrop colour of the photo, so its edges disappear */
@@ -82,6 +82,13 @@ const wideSizes = '162vh';
     position: absolute;
     inset: 0;
     animation: hero-settle 2.6s var(--ease-out) both;
+  }
+
+  /* Small-viewport units keep the hero from hiding behind mobile browser bars. */
+  @supports (height: 100svh) {
+    .hero {
+      --hero-h: max(100svh, 34rem);
+    }
   }
 
   /* The photo is placed by hand rather than with object-fit: her chin (70% down

@@ -38,6 +38,15 @@ export function localizedPath(lang: Lang, path: string): string {
 }
 
 /**
+ * "2 videos", "5 fotek" … picks the right word form for a number.
+ * English has two forms (one, other); Czech three (1, 2–4, 5 and more).
+ */
+export function plural(lang: Lang, count: number, forms: string[]): string {
+  const index = lang === 'cs' ? (count === 1 ? 0 : count >= 2 && count <= 4 ? 1 : 2) : count === 1 ? 0 : 1;
+  return `${count} ${forms[Math.min(index, forms.length - 1)]}`;
+}
+
+/**
  * Czech typography: keep one-letter prepositions and conjunctions (k, s, v, z, o, u, a, i)
  * on the same line as the word that follows them.
  */

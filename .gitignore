@@ -19,3 +19,6 @@ npm-debug.log*
 
 # local tooling
 .claude/
+
+# raw export of the old Squarespace site (kept locally only)
+_squarespace-backup/

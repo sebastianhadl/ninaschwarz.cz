@@ -51,6 +51,7 @@ const t = useTranslations(lang);
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-height: 100vh;
     min-height: 100svh;
     padding: calc(var(--header-h) + 3rem) var(--pad) clamp(3rem, 8vw, 6rem);
     overflow: hidden;
@@ -88,6 +89,7 @@ const t = useTranslations(lang);
 
   .plist__title {
     font-family: var(--font-display);
+    font-size: clamp(3.5rem, min(12vw, 16.5vh), 11.5rem);
     font-size: clamp(3.5rem, min(12vw, 16.5svh), 11.5rem);
     line-height: 1;
     letter-spacing: -0.025em;

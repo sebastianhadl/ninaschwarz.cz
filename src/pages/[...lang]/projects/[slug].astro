@@ -303,6 +303,7 @@ const schema = [
 
   .phero__player {
     /* as wide as the layout allows, but never taller than ~78% of the screen */
+    width: min(100%, 70rem, 78vh * (var(--video-aspect)));
     width: min(100%, 70rem, 78svh * (var(--video-aspect)));
     margin-inline: auto;
     box-shadow: 0 2.5rem 6rem -1.5rem rgba(0, 0, 0, 0.75);

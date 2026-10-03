@@ -15,7 +15,7 @@ Every push to `main` rebuilds and publishes it automatically (about two minutes)
 | Résumé | replace `public/s/Nina-Schwarz-Resume.pdf` (keep the file name) |
 | Gallery photos | add or remove `gallery-NN.jpg` files in `src/assets/images/home/` — they appear in numeric order. Add a matching description to `photos.alts` in both language files. |
 | Hero, "about" and the three strip photos | replace the files in `src/assets/images/home/` (keep the names). After changing `hero.jpg`, also replace `hero-portrait.jpg`, the upright crop phones use. |
-| Performance tapes | video in `public/video/`, poster frame in `src/assets/images/video/`, then list it in `src/components/home/Tapes.astro` and give it a title in the language files (`tapes.items`) |
+| Performance tapes | video in `public/video/`, poster frame in `src/assets/images/video/`, then list it in `src/data/home.ts` and give it a title in the language files (`tapes.items`) |
 | Music projects | `src/data/projects.ts`, with images in `src/assets/images/projects/<slug>/` (`cover-wide.jpg`, `artwork.jpg`, `video-poster.jpg`, `still-01.jpg` …) |
 | Colours, fonts, spacing | the variables at the top of `src/styles/global.css` |
 
