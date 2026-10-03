@@ -87,8 +87,8 @@ export const cs: Dictionary = {
   tapes: {
     heading: 'podívejte se na má <em>vystoupení</em>',
     items: [
-      { title: 'Ukázka vystoupení 01', alt: 'Nina Schwarz na jevišti v růžových šatech' },
-      { title: 'Ukázka vystoupení 02', alt: 'Nina Schwarz na jevišti se svatebním závojem' },
+      { title: '[Paint]fully Obvious', alt: 'Nina Schwarz v inscenaci „[Paint]fully Obvious“, na jevišti v růžových šatech' },
+      { title: 'Significant Other', alt: 'Nina Schwarz v inscenaci „Significant Other“, na jevišti se svatebním závojem' },
     ],
     play: 'Přehrát',
   },

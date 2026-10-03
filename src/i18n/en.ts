@@ -85,8 +85,8 @@ export const en = {
   tapes: {
     heading: 'check out my <em>performances</em>',
     items: [
-      { title: 'Performance tape 01', alt: 'Nina Schwarz performing on stage in a pink dress' },
-      { title: 'Performance tape 02', alt: 'Nina Schwarz on stage wearing a bridal veil' },
+      { title: '[Paint]fully Obvious', alt: 'Nina Schwarz in “[Paint]fully Obvious”, on stage in a pink dress' },
+      { title: 'Significant Other', alt: 'Nina Schwarz in “Significant Other”, on stage wearing a bridal veil' },
     ],
     play: 'Play',
   },

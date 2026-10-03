@@ -7,7 +7,8 @@ import sitemap from '@astrojs/sitemap';
 // On GitHub Pages the deploy workflow passes SITE_URL / BASE_PATH (read from the
 // repository's Pages settings), so the same code works on the temporary
 // *.github.io address and on the custom domain. Locally it falls back to production.
-const site = process.env.SITE_URL || 'https://www.ninaschwarz.cz';
+// (Forced to https: Pages reports http for a custom domain until its certificate is issued.)
+const site = (process.env.SITE_URL || 'https://www.ninaschwarz.cz').replace(/^http:/, 'https:');
 const base = process.env.BASE_PATH || '/';
 
 /**
