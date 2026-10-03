@@ -1,0 +1,258 @@
+---
+// Full-screen photo viewer. Any link with a `data-lightbox="<gallery name>"`
+// attribute opens here; links sharing a gallery name can be stepped through.
+// Without JavaScript the links simply open the large image.
+import Icon from './Icon.astro';
+import { useTranslations, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useTranslations(Astro.props.lang).lightbox;
+---
+
+<dialog class="lightbox" data-lightbox-dialog aria-label={t.label}>
+  <div class="lightbox__stage" data-lightbox-stage>
+    <img class="lightbox__img" data-lightbox-img alt="" decoding="async" />
+  </div>
+
+  <p class="lightbox__counter" data-lightbox-counter data-of={t.of} aria-live="polite"></p>
+
+  <button class="lightbox__btn lightbox__btn--close" type="button" data-lightbox-close aria-label={t.close}>
+    <Icon name="close" />
+  </button>
+  <button class="lightbox__btn lightbox__btn--prev" type="button" data-lightbox-prev aria-label={t.previous}>
+    <Icon name="arrow-left" />
+  </button>
+  <button class="lightbox__btn lightbox__btn--next" type="button" data-lightbox-next aria-label={t.next}>
+    <Icon name="arrow-right" />
+  </button>
+</dialog>
+
+<style>
+  .lightbox {
+    /* room kept free around the photo for the buttons and the counter */
+    --gap-x: clamp(0.75rem, 6vw, 6rem);
+    --gap-top: 4.5rem;
+    --gap-bottom: 4.5rem;
+
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(11, 11, 12, 0.96);
+    color: var(--paper);
+    overflow: hidden;
+  }
+
+  .lightbox::backdrop {
+    background: rgba(11, 11, 12, 0.96);
+  }
+
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+    animation: lightbox-in 0.3s var(--ease-out);
+  }
+
+  @keyframes lightbox-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .lightbox__stage {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: var(--gap-top) var(--gap-x) var(--gap-bottom);
+    touch-action: pan-y;
+  }
+
+  .lightbox__img {
+    /* Fit the screen, but never blow a small photo up past 1.5× its real size
+       (--w / --h are the pixel dimensions of the file). */
+    width: auto;
+    height: auto;
+    max-width: min(100vw - 2 * var(--gap-x), var(--w, 4000) * 1.5px);
+    max-height: min(100dvh - var(--gap-top) - var(--gap-bottom), var(--h, 4000) * 1.5px);
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.985);
+    transition:
+      opacity 0.35s var(--ease-out),
+      transform 0.5s var(--ease-out);
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .lightbox__img.is-loaded {
+    opacity: 1;
+    transform: none;
+  }
+
+  .lightbox__counter {
+    position: absolute;
+    left: 50%;
+    bottom: 1.25rem;
+    transform: translateX(-50%);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    font-variant-numeric: tabular-nums;
+    color: #a8a39a;
+  }
+
+  .lightbox__btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 1px solid rgba(247, 245, 240, 0.25);
+    border-radius: 50%;
+    background: rgba(11, 11, 12, 0.5);
+    transition:
+      background-color 0.25s var(--ease),
+      color 0.25s var(--ease),
+      border-color 0.25s var(--ease);
+  }
+
+  .lightbox__btn:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--ink);
+  }
+
+  .lightbox__btn :global(svg) {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .lightbox__btn--close {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .lightbox__btn--prev {
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .lightbox__btn--next {
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .lightbox.is-single .lightbox__btn--prev,
+  .lightbox.is-single .lightbox__btn--next,
+  .lightbox.is-single .lightbox__counter {
+    display: none;
+  }
+
+  @media (max-width: 40rem) {
+    .lightbox {
+      --gap-x: 0.5rem;
+      --gap-bottom: 5.5rem;
+    }
+
+    .lightbox__btn--prev,
+    .lightbox__btn--next {
+      top: auto;
+      bottom: 0.75rem;
+      transform: none;
+    }
+
+    .lightbox__counter {
+      bottom: 1.75rem;
+    }
+  }
+
+  :global(html:has(.lightbox[open])) {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox-dialog]');
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]'));
+
+  if (dialog && links.length && typeof dialog.showModal === 'function') {
+    const image = dialog.querySelector<HTMLImageElement>('[data-lightbox-img]')!;
+    const stage = dialog.querySelector<HTMLElement>('[data-lightbox-stage]')!;
+    const counter = dialog.querySelector<HTMLElement>('[data-lightbox-counter]')!;
+
+    let gallery: HTMLAnchorElement[] = [];
+    let index = 0;
+
+    const preload = (link?: HTMLAnchorElement) => {
+      if (link) new Image().src = link.href;
+    };
+
+    const show = (next: number) => {
+      index = (next + gallery.length) % gallery.length;
+      const link = gallery[index];
+      image.classList.remove('is-loaded');
+      image.style.setProperty('--w', link.dataset.w ?? '3');
+      image.style.setProperty('--h', link.dataset.h ?? '2');
+      image.alt = link.querySelector('img')?.alt ?? '';
+      image.onload = () => image.classList.add('is-loaded');
+      image.src = link.href;
+      if (image.complete) image.classList.add('is-loaded');
+      counter.textContent = `${index + 1} ${counter.dataset.of ?? '/'} ${gallery.length}`;
+      preload(gallery[index + 1]);
+      preload(gallery[index - 1]);
+    };
+
+    links.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        // Let modified clicks (new tab, download …) behave normally.
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        gallery = links.filter((other) => other.dataset.lightbox === link.dataset.lightbox);
+        dialog.classList.toggle('is-single', gallery.length < 2);
+        dialog.showModal();
+        show(gallery.indexOf(link));
+      });
+    });
+
+    dialog.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('[data-lightbox-next]')?.addEventListener('click', () => show(index + 1));
+
+    // Clicking the dark area around the photo closes the viewer.
+    stage.addEventListener('click', (event) => {
+      if (event.target === stage) dialog.close();
+    });
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') show(index - 1);
+      if (event.key === 'ArrowRight') show(index + 1);
+    });
+
+    dialog.addEventListener('close', () => {
+      image.removeAttribute('src');
+      gallery[index]?.focus({ preventScroll: true });
+    });
+
+    // Swipe left / right on touch screens.
+    let startX = 0;
+    let startY = 0;
+    stage.addEventListener('pointerdown', (event) => {
+      startX = event.clientX;
+      startY = event.clientY;
+    });
+    stage.addEventListener('pointerup', (event) => {
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) show(index + (dx < 0 ? 1 : -1));
+    });
+  }
+</script>

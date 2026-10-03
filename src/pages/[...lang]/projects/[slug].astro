@@ -1,0 +1,532 @@
+---
+// A single project — served at /projects/<slug>/ and /cs/projects/<slug>/.
+import { getImage } from 'astro:assets';
+import Icon from '../../../components/Icon.astro';
+import Photo from '../../../components/Photo.astro';
+import Player from '../../../components/Player.astro';
+import { displayTitle, projectImages, projects, type Project } from '../../../data/projects';
+import { site } from '../../../data/site';
+import { languages, defaultLang, localizedPath, routePath, typo, useTranslations, type Lang } from '../../../i18n';
+import Base from '../../../layouts/Base.astro';
+import { lightboxImage } from '../../../utils/images';
+
+export function getStaticPaths() {
+  return languages.flatMap((lang) =>
+    projects.map((project) => ({
+      params: { lang: lang === defaultLang ? undefined : lang, slug: project.slug },
+      props: { lang, project },
+    })),
+  );
+}
+
+interface Props {
+  lang: Lang;
+  project: Project;
+}
+
+const { lang, project } = Astro.props;
+const t = useTranslations(lang);
+const { cover, artwork, poster, stills } = projectImages(project.slug);
+
+const index = projects.findIndex((p) => p.slug === project.slug);
+const previous = projects[index - 1];
+const next = projects[index + 1];
+
+const gallery = await Promise.all(stills.map(async (image) => ({ image, large: await lightboxImage(image) })));
+const shareImage = await getImage({ src: cover, format: 'jpg', width: 1200, height: 630, fit: 'cover' });
+
+const path = `/projects/${project.slug}/`;
+const kind = t.projects.kind[project.kind];
+const description = `${project.headline[lang]} — ${kind}, ${project.released}. ${t.projects.label}: ${project.label}.`;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': project.kind === 'album' ? 'MusicAlbum' : 'MusicRecording',
+    name: project.title === 'Avon®' ? 'Síla v nás' : project.title,
+    byArtist: { '@id': `${site.url}/#nina` },
+    datePublished: project.released,
+    url: new URL(routePath(lang, path), site.url).href,
+    sameAs: project.spotify,
+  },
+];
+---
+
+<Base
+  lang={lang}
+  path={path}
+  title={`${project.title} — ${site.name}`}
+  description={description}
+  image={shareImage.src}
+  schema={schema}
+>
+  <article class="project" style={`--project-accent:${project.accent}`}>
+    <header class="phero theme-dark">
+      <div class="phero__backdrop" aria-hidden="true">
+        <Photo src={cover} widths={[480, 640, 960]} sizes="100vw" alt="" eager />
+      </div>
+
+      <div class="container phero__inner">
+        <a class="phero__back" href={localizedPath(lang, '/projects/')}>
+          <Icon name="arrow-left" />
+          {t.projects.back}
+        </a>
+        <p class="eyebrow phero__meta">
+          {kind} · {project.released}
+        </p>
+        <h1 class="phero__title" set:html={displayTitle(project.title)} />
+      </div>
+
+      <div class="container phero__video">
+        <div class="phero__player" style={`--video-aspect:${project.video.aspect}`}>
+          <Player
+            source={project.video.type === 'youtube'
+              ? { type: 'youtube', id: project.video.id }
+              : { type: 'file', src: project.video.src }}
+            poster={poster}
+            title={project.video.title}
+            aspect={project.video.aspect}
+            duration={project.video.type === 'file' ? project.video.duration : undefined}
+            playLabel={t.projects.playVideo}
+            sizes="(min-width: 76rem) 70rem, 92vw"
+          />
+        </div>
+        {project.video.type === 'youtube' && <p class="phero__note">{t.projects.videoNote}</p>}
+      </div>
+    </header>
+
+    <section class="pinfo theme-light section">
+      <div class="container pinfo__grid">
+        <a class="pinfo__art" href={project.spotify} target="_blank" rel="noopener" data-reveal>
+          <Photo
+            src={artwork}
+            widths={[320, 480, 640, 960, 1280]}
+            sizes="(min-width: 52rem) 34vw, 92vw"
+            alt={`${project.headline[lang]} — ${t.projects.artworkAlt}`}
+          />
+        </a>
+
+        <div class="pinfo__body">
+          <h2 class="pinfo__headline" data-reveal set:html={typo(lang, project.headline[lang])} />
+
+          <dl class="pinfo__facts" data-reveal>
+            <div>
+              <dt>{kind}</dt>
+              <dd>{project.released}</dd>
+            </div>
+            <div>
+              <dt>{t.projects.label}</dt>
+              <dd>{project.label}</dd>
+            </div>
+            <div>
+              <dt>{t.projects.distributed}</dt>
+              <dd>{project.distributor}</dd>
+            </div>
+          </dl>
+
+          <div class="pinfo__actions" data-reveal>
+            <a class="btn btn--solid" href={project.spotify} target="_blank" rel="noopener" aria-label={t.projects.listenOn}>
+              <Icon name="spotify" />
+              {t.projects.listen}
+            </a>
+            {
+              project.video.type === 'youtube' && (
+                <a
+                  class="btn"
+                  href={`https://www.youtube.com/watch?v=${project.video.id}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <Icon name="youtube" />
+                  {t.projects.watchOn}
+                </a>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {
+      gallery.length > 0 && (
+        <section class="pstills theme-dark section" aria-label={t.projects.stills}>
+          <div class="container">
+            <ul class:list={['pstills__grid', { 'pstills__grid--lead': gallery.length % 2 === 1 }]}>
+              {gallery.map(({ image, large }, i) => (
+                <li data-reveal>
+                  <a
+                    class="pstills__item"
+                    href={large.src}
+                    data-lightbox={project.slug}
+                    data-w={large.width}
+                    data-h={large.height}
+                    style={`aspect-ratio:${image.width}/${image.height}`}
+                  >
+                    <Photo
+                      src={image}
+                      widths={[480, 720, 960, 1400, 1800]}
+                      sizes="(min-width: 52rem) 46vw, 92vw"
+                      alt={`${project.stillsAlt[lang]} (${i + 1}/${gallery.length})`}
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <nav class="ppager theme-dark" aria-label={t.projects.heading}>
+      {
+        previous ? (
+          <a class="ppager__link" href={localizedPath(lang, `/projects/${previous.slug}/`)} rel="prev">
+            <span class="ppager__dir">
+              <Icon name="arrow-left" />
+              {t.projects.previous}
+            </span>
+            <span class="ppager__title" set:html={displayTitle(previous.title)} />
+          </a>
+        ) : (
+          <a class="ppager__link" href={localizedPath(lang, '/projects/')}>
+            <span class="ppager__dir">
+              <Icon name="arrow-left" />
+              {t.projects.back}
+            </span>
+            <span class="ppager__title">{t.projects.heading}</span>
+          </a>
+        )
+      }
+      {
+        next ? (
+          <a class="ppager__link ppager__link--next" href={localizedPath(lang, `/projects/${next.slug}/`)} rel="next">
+            <span class="ppager__dir">
+              {t.projects.next}
+              <Icon name="arrow-right" />
+            </span>
+            <span class="ppager__title" set:html={displayTitle(next.title)} />
+          </a>
+        ) : (
+          <a class="ppager__link ppager__link--next" href={localizedPath(lang, '/projects/')}>
+            <span class="ppager__dir">
+              {t.projects.back}
+              <Icon name="arrow-right" />
+            </span>
+            <span class="ppager__title">{t.projects.heading}</span>
+          </a>
+        )
+      }
+    </nav>
+  </article>
+</Base>
+
+<style>
+  /* --- Hero: giant title with the video rising over it -------------------- */
+
+  .phero {
+    position: relative;
+    padding-top: calc(var(--header-h) + clamp(2rem, 5vw, 4rem));
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .phero__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .phero__backdrop :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(28px) saturate(1.15);
+    transform: scale(1.15);
+    opacity: 0.5;
+  }
+
+  .phero__backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(11, 11, 12, 0.55), rgba(11, 11, 12, 0.3) 45%, var(--ink) 96%);
+  }
+
+  .phero__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: clamp(1.5rem, 4vw, 3rem);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.25s var(--ease);
+  }
+
+  .phero__back:hover {
+    color: var(--gold);
+  }
+
+  .phero__back :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .phero__back:hover :global(svg) {
+    transform: translateX(-0.25rem);
+  }
+
+  .phero__meta {
+    color: var(--project-accent, var(--gold));
+  }
+
+  .phero__title {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(5rem, 24vw, 23rem);
+    line-height: 0.82;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    animation: phero-rise 1.3s var(--ease-out) both;
+  }
+
+  /* The video overlaps the foot of the title, like a card laid over a poster. */
+  .phero__video {
+    position: relative;
+    margin-top: clamp(-7rem, -7vw, -1.5rem);
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+    animation: phero-rise 1.4s var(--ease-out) 0.15s both;
+  }
+
+  .phero__player {
+    /* as wide as the layout allows, but never taller than ~78% of the screen */
+    width: min(100%, 70rem, 78svh * (var(--video-aspect)));
+    margin-inline: auto;
+    box-shadow: 0 2.5rem 6rem -1.5rem rgba(0, 0, 0, 0.75);
+  }
+
+  .phero__note {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  @keyframes phero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(2.5rem);
+    }
+  }
+
+  /* --- Release details ----------------------------------------------------- */
+
+  .pinfo__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2rem, 7vw, 7rem);
+    align-items: center;
+  }
+
+  .pinfo__art {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 2rem 4rem -2rem rgba(11, 11, 12, 0.45);
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .pinfo__art:hover {
+    transform: translateY(-0.4rem) rotate(-1deg);
+  }
+
+  .pinfo__art :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pinfo__headline {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.25rem, 4.6vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .pinfo__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    gap: 1.25rem clamp(1.5rem, 4vw, 3.5rem);
+    margin-top: clamp(1.75rem, 3.5vw, 3rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .pinfo__facts dt {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pinfo__facts dd {
+    margin-top: 0.3rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    line-height: 1.15;
+  }
+
+  .pinfo__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: clamp(2rem, 4vw, 3.25rem);
+  }
+
+  .pinfo__actions :global(svg) {
+    width: 1.1em;
+    height: 1.1em;
+  }
+
+  .pinfo__actions .btn:hover :global(svg) {
+    transform: none;
+  }
+
+  /* --- Stills -------------------------------------------------------------- */
+
+  .pstills__grid {
+    columns: 2;
+    column-gap: clamp(0.5rem, 1vw, 1rem);
+  }
+
+  .pstills__grid li {
+    break-inside: avoid;
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
+  }
+
+  /* With an odd number of stills the first runs full width, so the rest pair up. */
+  .pstills__grid--lead li:first-child {
+    column-span: all;
+  }
+
+  .pstills__item {
+    display: block;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--ink-soft);
+    cursor: zoom-in;
+  }
+
+  .pstills__item :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s var(--ease-out);
+  }
+
+  .pstills__item:hover :global(img),
+  .pstills__item:focus-visible :global(img) {
+    transform: scale(1.04);
+  }
+
+  /* --- Previous / next ----------------------------------------------------- */
+
+  .ppager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--line);
+  }
+
+  .ppager__link {
+    display: grid;
+    gap: 0.75rem;
+    padding: clamp(2rem, 6vw, 5rem) var(--pad);
+    text-decoration: none;
+    transition: background-color 0.4s var(--ease);
+  }
+
+  .ppager__link + .ppager__link {
+    border-left: 1px solid var(--line);
+  }
+
+  .ppager__link--next {
+    justify-items: end;
+    text-align: right;
+  }
+
+  a.ppager__link:hover {
+    background-color: var(--ink-soft);
+  }
+
+  .ppager__dir {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .ppager__dir :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.35s var(--ease);
+  }
+
+  a.ppager__link:hover .ppager__dir {
+    color: var(--gold);
+  }
+
+  a.ppager__link:hover .ppager__dir :global(svg) {
+    transform: translateX(-0.3rem);
+  }
+
+  a.ppager__link--next:hover .ppager__dir :global(svg) {
+    transform: translateX(0.3rem);
+  }
+
+  .ppager__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 8vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 52rem) {
+    .pinfo__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pinfo__art {
+      max-width: 26rem;
+    }
+
+    .pinfo__facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pstills__grid {
+      columns: 1;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .ppager {
+      grid-template-columns: 1fr;
+    }
+
+    .ppager__link + .ppager__link {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+  }
+</style>

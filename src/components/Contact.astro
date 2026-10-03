@@ -1,0 +1,169 @@
+---
+import Icon from './Icon.astro';
+import Signature from './Signature.astro';
+import { site } from '../data/site';
+import { typo, useTranslations, withBase, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="contact theme-gold" id="contact">
+  <div class="container contact__inner">
+    <h2 class="display contact__heading" data-reveal set:html={typo(lang, t.contact.heading)} />
+
+    <div class="contact__grid">
+      <div class="contact__block" data-reveal style="--reveal-delay:1">
+        <h3 class="eyebrow">{t.contact.emailLabel}</h3>
+        <a class="contact__value contact__value--email" href={`mailto:${site.email}`}>{site.email}</a>
+      </div>
+
+      <div class="contact__block" data-reveal style="--reveal-delay:2">
+        <h3 class="eyebrow">{t.contact.phoneLabel}</h3>
+        <a class="contact__value" href={site.phone.href}>{site.phone.display}</a>
+      </div>
+
+      <div class="contact__block" data-reveal style="--reveal-delay:3">
+        <h3 class="eyebrow">{t.contact.socialLabel}</h3>
+        <ul class="contact__socials">
+          {
+            site.socials.map((s) => (
+              <li>
+                <a href={s.url} target="_blank" rel="noopener">
+                  <Icon name={s.id} />
+                  <span>{s.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="contact__cta" data-reveal style="--reveal-delay:4">
+      <a class="btn btn--solid" href={withBase(site.resume)} target="_blank" rel="noopener">
+        {t.contact.resumeCta}
+        <Icon name="download" />
+      </a>
+    </div>
+  </div>
+
+  <Signature class="contact__signature" />
+</section>
+
+<style>
+  .contact {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--section);
+  }
+
+  .contact__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .contact__heading {
+    font-size: clamp(3.5rem, 13vw, 12rem);
+    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .contact__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .contact__block .eyebrow {
+    margin-bottom: 0.9rem;
+  }
+
+  .contact__value {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.4vw, 2.25rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0 1px;
+    transition: background-size 0.4s var(--ease);
+  }
+
+  .contact__value:hover {
+    background-size: 100% 1px;
+  }
+
+  .contact__value--email {
+    overflow-wrap: anywhere;
+  }
+
+  .contact__socials {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .contact__socials a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-block: 0.2rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .contact__socials a:hover {
+    transform: translateX(0.3rem);
+  }
+
+  .contact__socials :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .contact__cta {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  /* The signature, oversized and tone-on-tone, as a closing flourish. */
+  .contact :global(.contact__signature) {
+    position: absolute;
+    right: -4%;
+    bottom: -9%;
+    width: min(62rem, 78%);
+    color: rgba(11, 11, 12, 0.07);
+    pointer-events: none;
+    transform: rotate(-6deg);
+  }
+
+  @media (max-width: 56rem) {
+    .contact__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .contact__block:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact :global(.contact__signature) {
+      width: 120%;
+      right: -30%;
+      bottom: -3%;
+    }
+  }
+</style>

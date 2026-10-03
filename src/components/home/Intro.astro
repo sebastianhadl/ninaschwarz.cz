@@ -1,0 +1,146 @@
+---
+// "read my résumé. watch my tapes. see my photos." — the three things
+// a casting director comes for, one click from the top of the page.
+import Icon from '../Icon.astro';
+import { site } from '../../data/site';
+import { typo, useTranslations, withBase, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const targets: Record<string, { href: string; external: boolean }> = {
+  resume: { href: withBase(site.resume), external: true },
+  tapes: { href: '#tapes', external: false },
+  photos: { href: '#photos', external: false },
+};
+---
+
+<section class="intro theme-light" aria-label={t.intro.label}>
+  <div class="container">
+    <ul class="intro__list">
+      {
+        t.intro.items.map((item, i) => {
+          const target = targets[item.target];
+          return (
+            <li data-reveal style={`--reveal-delay:${i}`}>
+              <a
+                class="intro__link"
+                href={target.href}
+                target={target.external ? '_blank' : undefined}
+                rel={target.external ? 'noopener' : undefined}
+              >
+                <span class="intro__num" aria-hidden="true">
+                  0{i + 1}
+                </span>
+                <span class="intro__text">
+                  <Fragment set:html={typo(lang, item.lead)} /> <em>{item.word}</em>.
+                </span>
+                <span class="intro__hint">{item.hint}</span>
+                <span class="intro__arrow">
+                  <Icon name={target.external ? 'arrow-up-right' : 'arrow-down'} />
+                </span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .intro {
+    padding-block: clamp(2.5rem, 6vw, 5.5rem);
+  }
+
+  .intro__list {
+    border-top: 1px solid var(--line);
+  }
+
+  .intro__link {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: clamp(0.75rem, 2vw, 2rem);
+    padding-block: clamp(0.9rem, 1.6vw, 1.5rem);
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+
+  .intro__num,
+  .intro__hint {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .intro__text {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 6.6vw, 6.25rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .intro__text em {
+    font-style: italic;
+    background-image: linear-gradient(var(--gold), var(--gold));
+    background-repeat: no-repeat;
+    background-position: 0 92%;
+    background-size: 100% 0.06em;
+    transition: background-size 0.4s var(--ease);
+  }
+
+  .intro__arrow {
+    display: grid;
+    place-items: center;
+    width: clamp(2.75rem, 4.5vw, 4rem);
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    transition:
+      background-color 0.35s var(--ease),
+      border-color 0.35s var(--ease),
+      transform 0.5s var(--ease-out);
+  }
+
+  .intro__arrow :global(svg) {
+    width: 38%;
+    height: 38%;
+  }
+
+  .intro__link:hover .intro__text,
+  .intro__link:focus-visible .intro__text {
+    transform: translateX(clamp(0.5rem, 1.5vw, 1.5rem));
+  }
+
+  .intro__link:hover .intro__text em,
+  .intro__link:focus-visible .intro__text em {
+    background-size: 100% 0.42em;
+  }
+
+  .intro__link:hover .intro__arrow,
+  .intro__link:focus-visible .intro__arrow {
+    background-color: var(--ink);
+    border-color: var(--ink);
+    color: var(--gold);
+    transform: scale(1.06);
+  }
+
+  @media (max-width: 40rem) {
+    .intro__link {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .intro__num,
+    .intro__hint {
+      display: none;
+    }
+  }
+</style>

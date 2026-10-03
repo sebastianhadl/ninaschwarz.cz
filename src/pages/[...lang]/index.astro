@@ -1,0 +1,33 @@
+---
+// Home page — served at / (English) and /cs/ (Czech).
+import About from '../../components/home/About.astro';
+import Hero from '../../components/home/Hero.astro';
+import Intro from '../../components/home/Intro.astro';
+import Marquee from '../../components/home/Marquee.astro';
+import Photos from '../../components/home/Photos.astro';
+import Strip from '../../components/home/Strip.astro';
+import Tapes from '../../components/home/Tapes.astro';
+import Work from '../../components/home/Work.astro';
+import { langPaths, useTranslations, type Lang } from '../../i18n';
+import Base from '../../layouts/Base.astro';
+
+export const getStaticPaths = langPaths;
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<Base lang={lang} path="/" title={t.meta.title} description={t.meta.description}>
+  <Hero lang={lang} />
+  <Intro lang={lang} />
+  <Strip lang={lang} />
+  <Marquee lang={lang} />
+  <About lang={lang} />
+  <Tapes lang={lang} />
+  <Photos lang={lang} />
+  <Work lang={lang} />
+</Base>

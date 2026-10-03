@@ -1,0 +1,85 @@
+---
+// Performance tapes. The video files live in public/video/ and their poster
+// frames in src/assets/images/video/. To add a tape, add both and list it below.
+import Player from '../Player.astro';
+import posterOne from '../../assets/images/video/performance-1.jpg';
+import posterTwo from '../../assets/images/video/performance-2.jpg';
+import { typo, useTranslations, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const tapes = [
+  { src: '/video/performance-1.mp4', poster: posterOne, duration: '2:42' },
+  { src: '/video/performance-2.mp4', poster: posterTwo, duration: '5:00' },
+];
+---
+
+<section class="tapes theme-dark section" id="tapes">
+  <div class="container">
+    <h2 class="display tapes__heading" data-reveal set:html={typo(lang, t.tapes.heading)} />
+
+    <div class="tapes__grid">
+      {
+        tapes.map((tape, i) => (
+          <figure class="tape" data-reveal style={`--reveal-delay:${i}`}>
+            <Player
+              source={{ type: 'file', src: tape.src }}
+              poster={tape.poster}
+              title={t.tapes.items[i].title}
+              alt={t.tapes.items[i].alt}
+              playLabel={t.tapes.play}
+            />
+            <figcaption>
+              <span>{t.tapes.items[i].title}</span>
+              <span class="tape__time">{tape.duration}</span>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .tapes__heading {
+    max-width: 12em;
+    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .tapes__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  }
+
+  .tape figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .tape__time {
+    font-variant-numeric: tabular-nums;
+    color: var(--gold);
+  }
+
+  @media (max-width: 52rem) {
+    .tapes__grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+  }
+</style>

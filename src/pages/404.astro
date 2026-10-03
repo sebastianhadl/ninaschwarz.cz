@@ -1,0 +1,65 @@
+---
+// Shown by GitHub Pages for any address that doesn't exist.
+// One page serves both languages, so it simply speaks both.
+import Icon from '../components/Icon.astro';
+import { localizedPath, useTranslations } from '../i18n';
+import Base from '../layouts/Base.astro';
+
+const en = useTranslations('en');
+const cs = useTranslations('cs');
+---
+
+<Base lang="en" path="/" title={en.notFound.title} description={en.notFound.text} index={false}>
+  <section class="lost theme-dark">
+    <div class="container">
+      <p class="eyebrow lost__code">404</p>
+      <h1 class="display" set:html={en.notFound.heading} />
+      <p class="lead lost__text">{en.notFound.text}</p>
+      <p class="lost__text lost__text--cs" lang="cs">{cs.notFound.text}</p>
+      <div class="lost__actions">
+        <a class="btn btn--gold" href={localizedPath('en', '/')}>
+          <Icon name="arrow-left" />
+          {en.notFound.cta}
+        </a>
+        <a class="btn" href={localizedPath('cs', '/')} lang="cs" hreflang="cs">
+          {cs.notFound.cta}
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    display: grid;
+    align-items: center;
+    min-height: 100svh;
+    padding-block: calc(var(--header-h) + 3rem) 5rem;
+  }
+
+  .lost__code {
+    margin-bottom: 1.25rem;
+    color: var(--gold);
+  }
+
+  .lost__text {
+    margin-top: 1.75rem;
+    max-width: 34rem;
+  }
+
+  .lost__text--cs {
+    margin-top: 0.35rem;
+    color: var(--muted);
+  }
+
+  .lost__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  .lost__actions .btn:hover :global(svg) {
+    transform: translateX(-0.2em);
+  }
+</style>

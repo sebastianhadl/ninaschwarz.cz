@@ -1,0 +1,191 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import Signature from './Signature.astro';
+import partnerLogo from '../assets/images/brand/ustecky-kraj.png';
+import { site } from '../data/site';
+import { languages, localizedPath, useTranslations, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const t = useTranslations(lang);
+const home = localizedPath(lang, '/');
+const year = new Date().getFullYear();
+
+const links = [
+  { href: `${home}#about`, label: t.nav.about },
+  { href: `${home}#tapes`, label: t.nav.videos },
+  { href: `${home}#photos`, label: t.nav.photos },
+  { href: localizedPath(lang, '/projects/'), label: t.nav.projects },
+  { href: `${home}#contact`, label: t.nav.contact },
+];
+---
+
+<footer class="footer theme-light">
+  <div class="container footer__top">
+    <div class="footer__brand">
+      <a href={home} class="footer__logo" aria-label={t.nav.home}>
+        <Signature />
+      </a>
+      <p class="footer__place">
+        {site.name}
+        <span>{site.location}</span>
+      </p>
+    </div>
+
+    <nav aria-label={t.nav.primary}>
+      <ul class="footer__links">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="footer__partner" href={site.partner.url} target="_blank" rel="noopener">
+      <Image src={partnerLogo} alt={t.footer.partnerAlt} width={128} densities={[1, 2]} loading="lazy" />
+    </a>
+
+    <a class="btn footer__top-link" href="#top">
+      {t.footer.backToTop}
+      <Icon name="arrow-up" />
+    </a>
+  </div>
+
+  <div class="container footer__bottom">
+    <p>© {year} {site.name}. {t.footer.rights}</p>
+    <ul class="footer__lang" aria-label={t.nav.language}>
+      {
+        languages.map((code) => {
+          const tt = useTranslations(code);
+          return (
+            <li>
+              <a href={localizedPath(code, path)} hreflang={code} lang={code} aria-current={code === lang ? 'true' : undefined}>
+                {tt.langName}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: clamp(3rem, 6vw, 5rem) 2rem;
+    font-size: 0.9375rem;
+  }
+
+  .footer__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 4rem);
+  }
+
+  .footer__logo {
+    display: block;
+    width: 9.5rem;
+    margin-bottom: 1rem;
+    color: var(--ink);
+    transition: color 0.3s var(--ease);
+  }
+
+  .footer__logo:hover {
+    color: var(--gold-deep);
+  }
+
+  .footer__place {
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .footer__place span {
+    display: block;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .footer__links {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 0.35rem 2.5rem;
+  }
+
+  .footer__links a,
+  .footer__lang a {
+    text-decoration: none;
+    transition: color 0.25s var(--ease);
+  }
+
+  .footer__links a:hover,
+  .footer__lang a:hover {
+    color: var(--gold-deep);
+  }
+
+  .footer__partner {
+    display: block;
+    width: 5.5rem;
+    transition: opacity 0.25s var(--ease);
+  }
+
+  .footer__partner:hover {
+    opacity: 0.7;
+  }
+
+  .footer__top-link :global(svg) {
+    transition: transform 0.3s var(--ease);
+  }
+
+  .footer__top-link:hover :global(svg) {
+    transform: translateY(-0.2em);
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .footer__lang {
+    display: flex;
+    gap: 1.25rem;
+  }
+
+  .footer__lang a[aria-current='true'] {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  @media (max-width: 60rem) {
+    .footer__top {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    .footer__top-link {
+      justify-self: start;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .footer__top {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+// A slow ticker of the roles Nina plays. Decorative: screen readers get a plain list instead.
+import { useTranslations, type Lang } from '../../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const t = useTranslations(Astro.props.lang);
+// Each half must be wider than the screen for the loop to be seamless.
+const run = [...t.roles, ...t.roles];
+---
+
+<div class="marquee theme-light">
+  <p class="sr-only">{t.roles.join(', ')}</p>
+  <div class="marquee__track" aria-hidden="true">
+    {
+      [0, 1].map(() => (
+        <ul class="marquee__group">
+          {run.map((role, i) => (
+            <li class:list={{ 'marquee__item--italic': i % 2 === 1 }}>
+              {role}
+              <span class="marquee__star">✦</span>
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    padding-block: clamp(1.1rem, 2.2vw, 2rem);
+    border-block: 1px solid var(--line);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee 48s linear infinite;
+  }
+
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__group {
+    display: flex;
+    flex: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .marquee__group li {
+    display: flex;
+    align-items: center;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5.2vw, 4.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+  }
+
+  .marquee__item--italic {
+    font-style: italic;
+  }
+
+  .marquee__star {
+    margin-inline: clamp(1.25rem, 2.6vw, 2.75rem);
+    font-family: var(--font-sans);
+    font-size: 0.34em;
+    font-style: normal;
+    color: var(--gold);
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,112 @@
+---
+// Photo gallery. Every file named gallery-NN.jpg in src/assets/images/home/
+// shows up here in numeric order — drop a new file in to add a photo.
+// (Alt texts are listed in src/i18n/en.ts and cs.ts under photos.alts.)
+import type { ImageMetadata } from 'astro';
+import Photo from '../Photo.astro';
+import { useTranslations, type Lang } from '../../i18n';
+import { lightboxImage } from '../../utils/images';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const files = import.meta.glob<{ default: ImageMetadata }>('../../assets/images/home/gallery-*.{jpg,jpeg,png}', {
+  eager: true,
+});
+const photos = await Promise.all(
+  Object.entries(files)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(async ([, mod], i) => ({
+      image: mod.default,
+      large: await lightboxImage(mod.default),
+      alt: t.photos.alts[i] ?? `${t.photos.heading} ${i + 1}`,
+    })),
+);
+---
+
+<section class="photos theme-light section" id="photos">
+  <div class="container">
+    <h2 class="display photos__heading" data-reveal>{t.photos.heading}</h2>
+
+    <ul class="photos__grid">
+      {
+        photos.map((photo, i) => (
+          <li data-reveal style={`--reveal-delay:${i % 5}`}>
+            <a
+              class="photos__item"
+              href={photo.large.src}
+              data-lightbox="photos"
+              data-w={photo.large.width}
+              data-h={photo.large.height}
+            >
+              <Photo
+                src={photo.image}
+                widths={[240, 360, 540, 720, 1000]}
+                sizes="(min-width: 40rem) 19vw, 46vw"
+                alt={photo.alt}
+              />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .photos__heading {
+    margin-bottom: clamp(2rem, 5vw, 4.5rem);
+  }
+
+  .photos__grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(0.5rem, 1vw, 1rem);
+  }
+
+  .photos__item {
+    position: relative;
+    display: block;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--paper-deep);
+    cursor: zoom-in;
+  }
+
+  .photos__item :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s var(--ease-out);
+  }
+
+  .photos__item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 0 solid var(--gold);
+    transition: border-width 0.3s var(--ease);
+    pointer-events: none;
+  }
+
+  .photos__item:hover :global(img),
+  .photos__item:focus-visible :global(img) {
+    transform: scale(1.05);
+  }
+
+  .photos__item:hover::after,
+  .photos__item:focus-visible::after {
+    border-width: 4px;
+  }
+
+  @media (max-width: 40rem) {
+    .photos__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

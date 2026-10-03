@@ -1,0 +1,233 @@
+---
+// One player for both kinds of video on the site:
+//  • files hosted here (performance tapes, the Avon video) — nothing downloads until play
+//  • YouTube videos — a poster is shown and the YouTube player only loads on click,
+//    so no third-party cookies or scripts are involved until the visitor asks for it.
+// Without JavaScript the file plays with the browser's own controls and the
+// YouTube poster links straight to YouTube.
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import Photo from './Photo.astro';
+import { withBase } from '../i18n';
+
+interface Props {
+  source: { type: 'youtube'; id: string } | { type: 'file'; src: string };
+  poster: ImageMetadata;
+  /** Accessible name of the video. */
+  title: string;
+  /** Description of the poster image. */
+  alt?: string;
+  /** CSS aspect-ratio, e.g. `16 / 9`. */
+  aspect?: string;
+  duration?: string;
+  playLabel: string;
+  sizes?: string;
+}
+
+const {
+  source,
+  poster,
+  title,
+  alt = '',
+  aspect = '16 / 9',
+  duration,
+  playLabel,
+  sizes = '(min-width: 64rem) 50vw, 100vw',
+} = Astro.props;
+
+const fallbackPoster = await getImage({ src: poster, format: 'webp', width: Math.min(poster.width, 1600) });
+---
+
+<div class="player" style={`aspect-ratio:${aspect}`} data-player={source.type}>
+  {
+    source.type === 'file' ? (
+      <video
+        class="player__media"
+        controls
+        playsinline
+        preload="none"
+        poster={fallbackPoster.src}
+        aria-label={title}
+        data-player-video
+      >
+        <source src={withBase(source.src)} type="video/mp4" />
+      </video>
+    ) : (
+      <div class="player__media" data-player-frame data-id={source.id} data-title={title} />
+    )
+  }
+
+  <a
+    class="player__cover"
+    href={source.type === 'youtube' ? `https://www.youtube.com/watch?v=${source.id}` : withBase(source.src)}
+    target={source.type === 'youtube' ? '_blank' : undefined}
+    rel={source.type === 'youtube' ? 'noopener' : undefined}
+    aria-label={`${playLabel}: ${title}`}
+    data-player-cover
+  >
+    <Photo src={poster} widths={[480, 800, 1200, 1600, 2000]} sizes={sizes} alt={alt} />
+    <span class="player__button">
+      <Icon name="play" />
+    </span>
+    {duration && <span class="player__duration">{duration}</span>}
+  </a>
+</div>
+
+<style>
+  .player {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+    isolation: isolate;
+  }
+
+  .player__media,
+  .player :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  video.player__media {
+    object-fit: cover;
+  }
+
+  .player__cover {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    color: var(--paper);
+    cursor: pointer;
+  }
+
+  /* A self-hosted file works with native controls when scripting is off. */
+  :global(.no-js) [data-player='file'] .player__cover {
+    display: none;
+  }
+
+  .player__cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s var(--ease-out);
+  }
+
+  .player__cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(11, 11, 12, 0.5), rgba(11, 11, 12, 0) 45%);
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .player__cover:hover :global(img) {
+    transform: scale(1.035);
+  }
+
+  .player__button {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: clamp(4rem, 7vw, 5.75rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(11, 11, 12, 0.55);
+    border: 1px solid rgba(247, 245, 240, 0.55);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transform: translate(-50%, -50%);
+    transition:
+      background-color 0.35s var(--ease),
+      border-color 0.35s var(--ease),
+      color 0.35s var(--ease),
+      transform 0.5s var(--ease-out);
+  }
+
+  .player__button :global(svg) {
+    width: 36%;
+    height: 36%;
+    margin-left: 6%;
+  }
+
+  .player__cover:hover .player__button,
+  .player__cover:focus-visible .player__button {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--ink);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  .player__duration {
+    position: absolute;
+    right: 1rem;
+    bottom: 0.9rem;
+    z-index: 1;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .player.is-playing .player__cover {
+    display: none;
+  }
+</style>
+
+<script>
+  const players = Array.from(document.querySelectorAll<HTMLElement>('[data-player]'));
+  const videos = players
+    .map((player) => player.querySelector<HTMLVideoElement>('[data-player-video]'))
+    .filter((video): video is HTMLVideoElement => video !== null);
+
+  for (const player of players) {
+    const cover = player.querySelector<HTMLAnchorElement>('[data-player-cover]');
+    const video = player.querySelector<HTMLVideoElement>('[data-player-video]');
+    const frame = player.querySelector<HTMLElement>('[data-player-frame]');
+    if (!cover) continue;
+
+    // Our own play button stands in for the browser's controls until playback starts.
+    if (video) video.controls = false;
+
+    cover.addEventListener('click', (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      player.classList.add('is-playing');
+
+      if (video) {
+        video.controls = true;
+        video.play().catch(() => {
+          /* the visitor can still press play on the native controls */
+        });
+        video.focus({ preventScroll: true });
+        return;
+      }
+
+      if (frame) {
+        const iframe = document.createElement('iframe');
+        const params = new URLSearchParams({ autoplay: '1', rel: '0', playsinline: '1' });
+        iframe.src = `https://www.youtube-nocookie.com/embed/${frame.dataset.id}?${params}`;
+        iframe.title = frame.dataset.title ?? 'YouTube video';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        frame.replaceWith(iframe);
+        iframe.focus({ preventScroll: true });
+      }
+    });
+  }
+
+  // Only one of our own videos plays at a time.
+  for (const video of videos) {
+    video.addEventListener('play', () => {
+      for (const other of videos) if (other !== video) other.pause();
+    });
+  }
+</script>
