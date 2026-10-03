@@ -10,11 +10,13 @@ interface Props {
 }
 
 const t = useTranslations(Astro.props.lang).lightbox;
+// A 1×1 transparent placeholder, so the <img> is valid before a photo is opened.
+const blank = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 ---
 
 <dialog class="lightbox" data-lightbox-dialog aria-label={t.label}>
   <div class="lightbox__stage" data-lightbox-stage>
-    <img class="lightbox__img" data-lightbox-img alt="" decoding="async" />
+    <img class="lightbox__img" data-lightbox-img src={blank} data-blank={blank} alt="" decoding="async" />
   </div>
 
   <p class="lightbox__counter" data-lightbox-counter data-of={t.of} aria-live="polite"></p>
@@ -240,7 +242,8 @@ const t = useTranslations(Astro.props.lang).lightbox;
     });
 
     dialog.addEventListener('close', () => {
-      image.removeAttribute('src');
+      image.src = image.dataset.blank ?? '';
+      image.classList.remove('is-loaded');
       gallery[index]?.focus({ preventScroll: true });
     });
 

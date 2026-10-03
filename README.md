@@ -44,6 +44,8 @@ The domain's DNS is managed at Websupport (registered through Active24). To move
 Squarespace to GitHub Pages:
 
 1. In the repository: **Settings → Pages → Custom domain** → enter `www.ninaschwarz.cz` and save.
+   Then run the deployment once more (**Actions → Deploy to GitHub Pages → Run workflow**), so the
+   pages are rebuilt for the new address.
 2. In the Websupport DNS editor, remove the existing `A` records for `ninaschwarz.cz` and `www`
    (the Squarespace addresses `198.185.159.x` / `198.49.23.x`, and `37.9.175.163`), then add:
 
