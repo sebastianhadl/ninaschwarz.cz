@@ -38,34 +38,30 @@ npm run build   # production build into dist/
 The workflow in `.github/workflows/deploy.yml` does everything. In the repository,
 **Settings → Pages → Source** must be set to **GitHub Actions**.
 
-### Using the ninaschwarz.cz domain
+### The ninaschwarz.cz domain
 
-The domain's DNS is managed at Websupport (registered through Active24). To move it from
-Squarespace to GitHub Pages:
+The site answers at `https://www.ninaschwarz.cz` (the bare `ninaschwarz.cz` and plain `http`
+redirect there). Two things make that work:
 
-1. In the repository: **Settings → Pages → Custom domain** → enter `www.ninaschwarz.cz` and save.
-   Then run the deployment once more (**Actions → Deploy to GitHub Pages → Run workflow**), so the
-   pages are rebuilt for the new address.
-2. In the Websupport DNS editor, remove the existing `A` records for `ninaschwarz.cz` and `www`
-   (the Squarespace addresses `198.185.159.x` / `198.49.23.x`, and `37.9.175.163`), then add:
+- **GitHub:** Settings → Pages → Custom domain is `www.ninaschwarz.cz`, with **Enforce HTTPS** on.
+  GitHub issues and renews the certificate by itself.
+- **DNS** (Websupport, domain registered through Active24):
 
-   | Type | Name | Value |
-   | --- | --- | --- |
-   | `A` | `@` | `185.199.108.153` |
-   | `A` | `@` | `185.199.109.153` |
-   | `A` | `@` | `185.199.110.153` |
-   | `A` | `@` | `185.199.111.153` |
-   | `CNAME` | `www` | `sebastianhadl.github.io` |
+  | Type | Name | Value |
+  | --- | --- | --- |
+  | `A` | `@` | `185.199.108.153` |
+  | `A` | `@` | `185.199.109.153` |
+  | `A` | `@` | `185.199.110.153` |
+  | `A` | `@` | `185.199.111.153` |
+  | `CNAME` | `www` | `sebastianhadl.github.io` |
 
-3. Wait for GitHub to show the domain as verified (minutes to a few hours), then tick
-   **Enforce HTTPS**.
+If the domain is ever changed: set the new one in Settings → Pages, run the deployment again
+(**Actions → Deploy to GitHub Pages → Run workflow**) so the pages are rebuilt for the new address,
+then update DNS. If HTTPS doesn't appear within an hour of the DNS change, remove the custom
+domain in Settings → Pages and add it again — that makes GitHub request the certificate.
 
-Nothing in the code needs to change: the build reads the address from the Pages settings.
-While the site still lives on the `github.io` address it marks itself as "do not index",
-so search engines only ever see the real domain.
-
-Old addresses keep working: `/projects/…` are unchanged, `/home` redirects to `/`, and the
-résumé is still at `/s/Nina-Schwarz-Resume.pdf`.
+Addresses from the old Squarespace site keep working: `/projects/…` are unchanged, `/home`
+redirects to `/`, and the résumé is still at `/s/Nina-Schwarz-Resume.pdf`.
 
 ## How it is put together
 
