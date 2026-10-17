@@ -72,7 +72,7 @@ export const en = {
       'Nina has spent her career concerting across the Czech Republic, writing her own music where she has made significant contributions as the Lead Singer and Co-writer of the official <strong>Avon® Cancer Awareness</strong> anthem, which she performed as part of the Avon® Breast Cancer Crusade. Additionally, Nina ventured into the realm of music production with the release of her debut Album titled “<strong>Yellow</strong>,” accompanied by three captivating music videos. Nina has also had a long dance career where she has represented the Extra League in which she competed in several disciplines and styles. Among her greatest dance achievements is becoming <strong>World Champion</strong> in category <strong>Solo</strong>, <strong>Duo</strong> and <strong>Formation Disco Dance</strong>.',
       'As a Performer she had the chance to be part of several projects both in the Czech Republic and in New York where she brought to life several of the famous characters and even contributed to the Choreography for the Musical Rebelove.',
     ],
-    highlightsLabel: 'At a glance',
+    highlightsLabel: 'Selected achievements',
     highlights: [
       { title: 'World Champion', text: 'Disco Dance — Solo, Duo & Formation' },
       { title: 'AMDA, New York', text: 'Musical Theatre, class of 2024' },

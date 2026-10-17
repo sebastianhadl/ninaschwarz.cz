@@ -103,35 +103,31 @@ const t = useTranslations(lang);
 
   .about__facts {
     margin-top: clamp(2.5rem, 5vw, 4rem);
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--line);
   }
 
   .about__facts dl {
+    margin-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  /* One achievement per row: the title on the left, the detail on the right. */
+  .about__facts dl > div {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 4vw, 3.5rem);
-    margin-top: 1.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: 0.35rem clamp(1.25rem, 3vw, 2.5rem);
+    align-items: baseline;
+    padding-block: clamp(0.85rem, 1.4vw, 1.2rem);
+    border-bottom: 1px solid var(--line);
   }
 
   .about__facts dt {
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 2.3vw, 2.15rem);
+    font-size: clamp(1.5rem, 2.1vw, 1.9rem);
     line-height: 1.1;
     letter-spacing: -0.01em;
   }
 
-  .about__facts dt::before {
-    content: '✦';
-    display: block;
-    margin-bottom: 0.6rem;
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    color: var(--gold);
-  }
-
   .about__facts dd {
-    margin-top: 0.35rem;
     font-size: 0.9375rem;
     line-height: 1.45;
     color: var(--muted);
@@ -153,8 +149,9 @@ const t = useTranslations(lang);
   }
 
   @media (max-width: 30rem) {
-    .about__facts dl {
+    .about__facts dl > div {
       grid-template-columns: 1fr;
+      gap: 0.15rem;
     }
   }
 </style>

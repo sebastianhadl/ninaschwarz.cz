@@ -43,19 +43,10 @@ const wideSizes = '162vh';
   </picture>
 
   <div class="hero__content">
-    <p class="hero__tagline">
-      {
-        t.hero.tagline.map((word, i) => (
-          <>
-            {i > 0 && <span aria-hidden="true">·</span>}
-            <span>{word}</span>
-          </>
-        ))
-      }
-    </p>
+    <p class="hero__tagline">{t.hero.tagline.map((word) => <span>{word}</span>)}</p>
     <h1 class="hero__name">
       <span class="hero__word"><span>Nina</span></span>
-      <span class="hero__word hero__word--italic"><span>Schwarz</span></span>
+      <span class="hero__word hero__word--second"><span>Schwarz</span></span>
     </h1>
   </div>
 </section>
@@ -130,22 +121,16 @@ const wideSizes = '162vh';
 
   .hero__tagline {
     display: flex;
-    align-items: center;
-    gap: 0.85em;
-    margin-bottom: clamp(0.25rem, 1vw, 0.75rem);
+    flex-wrap: wrap;
+    gap: 0.25em 1.6em;
+    margin-bottom: clamp(0.35rem, 1.2vw, 0.9rem);
+    padding-left: 0.08em;
     font-size: clamp(0.6875rem, 0.6rem + 0.35vw, 0.9375rem);
     font-weight: 600;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--gold);
     animation: hero-fade 1.2s var(--ease-out) 0.9s both;
-  }
-
-  .hero__tagline::before {
-    content: '';
-    width: clamp(1.5rem, 4vw, 3.5rem);
-    height: 1px;
-    background: currentColor;
   }
 
   .hero__name {
@@ -175,11 +160,7 @@ const wideSizes = '162vh';
     animation: hero-rise 1.4s var(--ease-out) 0.2s both;
   }
 
-  .hero__word--italic {
-    font-style: italic;
-  }
-
-  .hero__word--italic > span {
+  .hero__word--second > span {
     animation-delay: 0.34s;
   }
 

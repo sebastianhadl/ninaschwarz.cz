@@ -34,11 +34,8 @@ const targets: Record<string, { href: string; external: boolean; hint: string }>
                 target={target.external ? '_blank' : undefined}
                 rel={target.external ? 'noopener' : undefined}
               >
-                <span class="intro__num" aria-hidden="true">
-                  0{i + 1}
-                </span>
                 <span class="intro__text">
-                  <Fragment set:html={typo(lang, item.lead)} /> <em>{item.word}</em>.
+                  <Fragment set:html={typo(lang, item.lead)} /> <em>{item.word}</em>
                 </span>
                 <span class="intro__hint">{target.hint}</span>
                 <span class="intro__arrow">
@@ -64,7 +61,7 @@ const targets: Record<string, { href: string; external: boolean; hint: string }>
 
   .intro__link {
     display: grid;
-    grid-template-columns: 2.75rem minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
     gap: clamp(0.75rem, 2vw, 2rem);
     padding-block: clamp(0.9rem, 1.6vw, 1.5rem);
@@ -72,7 +69,6 @@ const targets: Record<string, { href: string; external: boolean; hint: string }>
     text-decoration: none;
   }
 
-  .intro__num,
   .intro__hint {
     font-size: 0.75rem;
     font-weight: 600;
@@ -139,7 +135,6 @@ const targets: Record<string, { href: string; external: boolean; hint: string }>
       grid-template-columns: minmax(0, 1fr) auto;
     }
 
-    .intro__num,
     .intro__hint {
       display: none;
     }

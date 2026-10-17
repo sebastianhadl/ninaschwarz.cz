@@ -74,7 +74,7 @@ export const cs: Dictionary = {
       'Nina koncertovala po celé České republice a píše vlastní hudbu. Jako hlavní zpěvačka a spoluautorka stojí za oficiální <strong>hymnou Avon® na podporu boje proti rakovině</strong>, kterou zazpívala v rámci projektu Avon® za zdravá prsa. Pustila se také do hudební produkce a vydala debutové album „<strong>Yellow</strong>“, které doprovázejí tři působivé videoklipy. Má za sebou i dlouhou taneční kariéru – v extralize soutěžila v řadě disciplín a stylů. K jejím největším tanečním úspěchům patří titul <strong>mistryně světa</strong> v disco dance v kategoriích <strong>sólo</strong>, <strong>duo</strong> a <strong>formace</strong>.',
       'Jako performerka se podílela na řadě projektů v České republice i v New Yorku, kde ztvárnila několik slavných postav, a přispěla také k choreografii muzikálu Rebelové.',
     ],
-    highlightsLabel: 'Ve zkratce',
+    highlightsLabel: 'Vybrané úspěchy',
     highlights: [
       { title: 'Mistryně světa', text: 'Disco dance — sólo, duo a formace' },
       { title: 'AMDA, New York', text: 'Muzikálové divadlo, absolventka 2024' },
